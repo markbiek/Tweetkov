@@ -20,7 +20,8 @@ var c = {};
 
   generate();
 	 */
-	var tweetUrl = 'https://api.twitter.com/1/statuses/user_timeline.json?include_entities=true&include_rts=true&screen_name=antelopelovefan&include_rts=0&count=200';
+	var tweetUrl = 'https://api.twitter.com/1/statuses/user_timeline.json?include_entities=true&include_rts=true&include_rts=0&count=200';
+	var profileImgUrl = 'https://api.twitter.com/1/users/profile_image?size=bigger';
 	var tweets = '';
 	var rawTweets = {};
 	c.styles = {
@@ -40,8 +41,10 @@ var c = {};
 			if(data.hasOwnProperty(i)) {
 				var tweet = data[i];
 				
-				//TODO Check for RT
-				inputText += tweet.text + ' ';
+				//Don't include retweets
+				if(!/^RT/.test(tweet.text)) {
+					inputText += tweet.text + ' ';
+				}
 			}	
 		}
 		
@@ -70,7 +73,35 @@ var c = {};
     			result = result.substring(0, lastSpace);
     		}
     	}
+    	
+    	//Remove the first word because this seems to always be the same
+    	var firstSpace = result.indexOf(' ');
+    	result = result.substring(firstSpace, result.length - firstSpace);
+    	
     	return result;
+	};
+	
+	var loadTweets = function() {
+		if(screenName.value != '') {
+			var url = tweetUrl + '&screen_name=' + screenName.value;
+			var imgUrl = profileImgUrl + '&screen_name=' + screenName.value;
+			
+			dbg(url);
+			dbg(imgUrl);
+			btGenTweet.visible = false;	
+			profileImage.visible = false;
+				
+			getJSON(url, function(data) {
+				rawTweets = data;
+				tweets = processTweets(data);
+				btGenTweet.visible = true;
+				
+				profileImage.image = imgUrl;
+				profileImage.visible = true;
+			});
+		}else {
+			alrt('Please enter a Twitter screen name.');
+		};
 	};
 		
 	Titanium.UI.setBackgroundColor('#000');
@@ -82,12 +113,7 @@ var c = {};
 		top:10
 	});
 	btLoadTweets.addEventListener('click', function(e) {
-		btGenTweet.visible = false;		
-		getJSON(tweetUrl, function(data) {
-			rawTweets = data;
-			tweets = processTweets(data);
-			btGenTweet.visible = true;
-		});
+		loadTweets();
 	});
 	
 	var btGenTweet = Ti.UI.createButton({
@@ -103,6 +129,19 @@ var c = {};
 		textArea.value = tweet;
 	});
 	
+	var screenName = Ti.UI.createTextField({
+	  borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
+	  color: '#336699',
+	  top: btGenTweet.top + btGenTweet.height + c.styles.DEFAULT_PADDING,
+	  left: c.styles.DEFAULT_PADDING,
+	  width: '90%', 
+	  height: 120,
+	  value: 'antelopelovefan'
+	});
+	screenName.addEventListener('change', function(e) {
+		btGenTweet.visible = false;
+	});
+	
 	var textArea = Ti.UI.createTextArea({
 	  borderWidth: 2,
 	  borderColor: '#bbb',
@@ -111,10 +150,18 @@ var c = {};
 	  font: {fontSize:40, fontWeight:'bold'},
 	  textAlign: 'left',
 	  value: '',
-	  top: btGenTweet.top + btGenTweet.height + c.styles.DEFAULT_PADDING,
+	  top: screenName.top + screenName.height + c.styles.DEFAULT_PADDING,
 	  left: c.styles.DEFAULT_PADDING,
 	  width: '90%', 
 	  height: '50%'
+	});
+	
+	var profileImage = Ti.UI.createImageView({
+	  top: c.styles.DEFAULT_PADDING,
+	  left: c.styles.DEFAULT_PADDING,
+	  width: 73,
+	  height: 73,
+	  visible: false
 	});
 
 	
@@ -123,10 +170,14 @@ var c = {};
 	    backgroundColor:'#fff'
 	});
 	
+	winMain.add(profileImage);
 	winMain.add(btLoadTweets);
 	winMain.add(btGenTweet);
 	winMain.add(textArea);
+	winMain.add(screenName);
 	winMain.open();
+	
+	loadTweets();
 	
 	dbg("Finished opening");
 })();
