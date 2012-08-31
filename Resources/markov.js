@@ -1,12 +1,12 @@
-/ **
- * Constructor
+/**
+ * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
  *
- Input string * @ param string str to apply the Markov chain
- * @ Param number chain_length length of chain
- * @ Return void
- * /
+ * @param  string str          ãƒžãƒ«ã‚³ãƒ•é€£éŽ–ã‚’é©ç”¨ã™ã‚‹å…¥åŠ›æ–‡å­—åˆ—
+ * @param  number chain_length ãƒã‚§ã‚¤ãƒ³ã®é•·ã•
+ * @return void
+ */
 var Markov = function (str, chain_length) {
-  this.init (str, chain_length);
+  this.init(str, chain_length);
 };
 
 Markov.prototype = (function () {
@@ -24,137 +24,137 @@ Markov.prototype = (function () {
     nextState,
     getChain;
 
-  / **
-   * Initialize the chain
-   * Set the length of the input string, chain, to create a chain
+  /**
+   * ãƒã‚§ã‚¤ãƒ³ã®åˆæœŸåŒ–
+   * å…¥åŠ›æ–‡å­—åˆ—ã€ãƒã‚§ã‚¤ãƒ³ã®é•·ã•ã‚’è¨­å®šã—ã€ãƒã‚§ã‚¤ãƒ³ã‚’ä½œæˆã™ã‚‹
    *
-   Input string * @ param string str
-   * @ Param number len the length of the chain
-   * @ Return void
-   * /
+   * @param  string str å…¥åŠ›æ–‡å­—åˆ—
+   * @param  number len ãƒã‚§ã‚¤ãƒ³ã®é•·ã•
+   * @return void
+   */
   init = function (str, len) {
-    len = Number (len);
-    ? chainLength = len> 0 len: 1;
+    len = Number(len);
+    chainLength = len > 0 ? len : 1;
     input = str;
-    makeChain (input);
+    makeChain(input);
   };
 
-  / **
-   * Create chain
+  /**
+   * ãƒã‚§ã‚¤ãƒ³ã®ä½œæˆ
    *
-   * @ Param void
-   * @ Return void
-   * /
+   * @param  void
+   * @return void
+   */
   makeChain = function () {
-    initState ();
+    initState();
     markovChain = {};
-    var strArr = input.split (''),
+    var strArr = input.split(''),
       i,
       c;
-    for (i = 0; i <strArr.length; i + = 1) {
-      c = strArr [i];
-      pushChain (c);
-      nextState (c);
+    for (i = 0; i < strArr.length; i += 1) {
+      c = strArr[i];
+      pushChain(c);
+      nextState(c);
     }
-    pushChain (NONWORD);
+    pushChain(NONWORD);
   };
 
-  / **
-   * Insert one chain letter
+  /**
+   * ãƒã‚§ã‚¤ãƒ³ 1 æ–‡å­—æŒ¿å…¥ã™ã‚‹
    *
-   * @ Param string c character you want to insert
-   * @ Return void
-   * /
+   * @param  string c æŒ¿å…¥ã™ã‚‹æ–‡å­—
+   * @return void
+   */
   pushChain = function (c) {
     var chain = markovChain,
       i;
-    for (i = 0; i <(chainLength - 1); i + = 1) {
-      if (typeof chain [state [i]] === 'undefined') {
-        chain [state [i]] = {};
+    for (i = 0; i < (chainLength - 1); i += 1) {
+      if (typeof chain[state[i]] === 'undefined') {
+        chain[state[i]] = {};
       }
-      chain = chain [state [i]];
+      chain = chain[state[i]];
     }
-    if (typeof chain [state [chainLength - 1]] === 'undefined') {
-      chain [state [chainLength - 1]] = [];
+    if (typeof chain[state[chainLength - 1]] === 'undefined') {
+      chain[state[chainLength - 1]] = [];
     }
-    . chain [state [chainLength - 1]] push (c);
+    chain[state[chainLength - 1]].push(c);
   };
 
-  / **
-   * Passed to the lambda output, one character at a time, by the Markov chain
+  /**
+   * ãƒžãƒ«ã‚³ãƒ•é€£éŽ–ã«ã‚ˆã‚‹å‡ºåŠ›ã‚’ 1 æ–‡å­—ãšã¤ lambda ã«æ¸¡ã™
    *
-   * Function to receive the letter @ param function lambda
-   * @ Return void
-   * /
+   * @param  function lambda æ–‡å­—ã‚’å—ã‘ã‚‹é–¢æ•°
+   * @return void
+   */
   each = function (lambda) {
-    initState ();
-    for (; ;) {
-      var p = pick ();
+    initState();
+    for (;;) {
+      var p = pick();
       if (p === NONWORD) {
         break;
-      } Else {
-        lambda.apply (null, [p]);
+      } else {
+        lambda.apply(null, [p]);
       }
-      nextState (p);
+      nextState(p);
     }
   };
 
-  / **
-   * Choose one character by the Markov chain
+  /**
+   * ãƒžãƒ«ã‚³ãƒ•é€£éŽ–ã«ã‚ˆã‚Š 1 æ–‡å­—é¸ã¶
    *
-   * @ Param void
-   The character * @ return string extracted by the Markov chain
-   * /
+   * @param  void
+   * @return string ãƒžãƒ«ã‚³ãƒ•é€£éŽ–ã«ã‚ˆã‚ŠæŠ½å‡ºã•ã‚ŒãŸæ–‡å­—
+   */
   pick = function () {
     var chain = markovChain,
       i,
       r;
-    for (i = 0; i <chainLength; i + = 1) {
-      chain = chain [state [i]];
+    for (i = 0; i < chainLength; i += 1) {
+      chain = chain[state[i]];
     }
-    r = Math.floor (Math.random () * chain.length);
-    return chain [r];
+    r = Math.floor(Math.random() * chain.length);
+    return chain[r];
   };
 
-  / **
-   * Initialize the state
+  /**
+   * çŠ¶æ…‹ã®åˆæœŸåŒ–
    *
-   * @ Param void
-   * @ Return void
-   * /
+   * @param  void
+   * @return void
+   */
   initState = function () {
     state = [];
-    for (var i = 0; i <chainLength; i + = 1) {
-      state [i] = NONWORD;
+    for (var i = 0; i < chainLength; i += 1) {
+      state[i] = NONWORD;
     }
   };
 
-  / **
-   * Continue to the next state
+  /**
+   * çŠ¶æ…‹ã‚’æ¬¡ã«é€²ã‚ã‚‹
    *
-   Character * @ param string c inserted into the chain
-   * @ Return void
-   * /
-  nextState = function (c) {
-    for (var i = 0; i <(chainLength - 1); i + = 1) {
-      state [i] = state [i + 1];
+   * @param  string c ãƒã‚§ã‚¤ãƒ³ã«æŒ¿å…¥ã—ãŸæ–‡å­—
+   * @return void
+   */
+  nextState = function(c) {
+    for (var i = 0; i < (chainLength - 1); i += 1) {
+      state[i] = state[i + 1];
     }
-    state [chainLength - 1] = c;
+    state[chainLength - 1] = c;
   };
 
-  / **
-   * Interface to obtain the chain
+  /**
+   * ãƒã‚§ã‚¤ãƒ³ã‚’å–å¾—ã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹
    *
-   * @ Param void
-   * @ Return object chain that generated
-   * /
+   * @param  void
+   * @return object ç”Ÿæˆã—ãŸãƒã‚§ã‚¤ãƒ³
+   */
   getChain = function () {
     return markovChain;
   };
 
   return {
-    init: init,
-    each: each,
+    init:     init,
+    each:     each,
     getChain: getChain
   };
-}) ();
+})();

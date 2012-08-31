@@ -18,9 +18,10 @@
 
   generate();
 	 */
-	var tweetUrl = 'https://api.twitter.com/1/statuses/user_timeline.json?include_entities=true&include_rts=true&screen_name=antelopelovefan&include_rts=0&count=5';
+	var tweetUrl = 'https://api.twitter.com/1/statuses/user_timeline.json?include_entities=true&include_rts=true&screen_name=antelopelovefan&include_rts=0&count=200';
 	
 	Ti.include('functions.js');
+	Ti.include('markov.js');
 		
 	Titanium.UI.setBackgroundColor('#000');
 	
@@ -32,15 +33,33 @@
 	win1.open();
 	
 	getJSON(tweetUrl, function(data) {
+		var inputText = '';
+		var len = 4;
+		
 		for(var i in data) {
 			if(data.hasOwnProperty(i)) {
 				var tweet = data[i];
 				
-				dbg(tweet.id);
-				dbg(tweet.text);
-				dbg('');
+				inputText += tweet.text + ' ';
 			}	
 		}
+		
+		dbg(inputText);
+		
+		inputText = inputText.replace(/#.*?(\s+|$)/g, '');
+		inputText = inputText.replace(/http:\/\/.*?(\s+|$)/g, '');
+		inputText = inputText.replace(/@.*?(\s+|$)/g, '');
+		inputText = inputText.replace(/[^aA-zZ0-9]/, '');
+		
+		dbg("-----------");
+		dbg(inputText);
+		
+		/*var chain  = new Markov(inputText, len);
+		var result = '';
+		chain.each(function (v) {
+      		result += v;
+    	});
+    	dbg(result);*/
 	});
 	
 	dbg("Finished opening");
