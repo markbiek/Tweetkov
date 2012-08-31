@@ -53,3 +53,7 @@ function alrt(message) {
 function networkAvailable() {
     return Ti.Network.networkTypeName != 'NONE';
 }
+
+function cleanTweet(inputText) {
+	return inputText.replace(/#.*?(\s+|$)/g, '').replace(/http:\/\/.*?(\s+|$)/g, '').replace(/@.*?(\s+|$)/g, '').replace(/[^aA-zZ0-9]/, '');	
+}
